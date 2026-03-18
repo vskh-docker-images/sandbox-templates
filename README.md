@@ -1,5 +1,7 @@
 # Sandbox Templates
 
+[![Build and Push Sandbox Templates](https://github.com/vskh-docker-images/sanbox-templates/actions/workflows/build-publish.yml/badge.svg)](https://github.com/vskh-docker-images/sanbox-templates/actions/workflows/build-publish.yml)
+
 Custom Docker image templates for [Docker sandbox](https://docs.docker.com/desktop/features/sandbox/), providing environment variable injection for agentic development workflows.
 
 ## Overview
@@ -13,7 +15,6 @@ Docker Desktop sandbox on Linux does not provide a reliable way to pass custom e
 - Is limited to a predefined set of environment variables and API providers
 - May not function consistently on Docker Desktop for Linux
 - Does not support arbitrary environment variables needed for custom agent configurations
-- Provides no way to inject project-specific settings, internal API endpoints, or organization-specific credentials
 
 For agentic development workflows, the ability to inject arbitrary environment variables — API keys, MCP server URLs, feature flags, authentication tokens — is essential for proper setup of the autonomous agent inside the sandbox.
 
