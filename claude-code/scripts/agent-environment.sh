@@ -30,9 +30,12 @@ strip_matching_quotes() {
     printf '%s' "$value"
 }
 
+APPLIED_VARS=()
+
 load_env_file() {
     local env_file="$1"
     local line key value
+    local file_vars=()
 
     while IFS= read -r line || [ -n "$line" ]; do
         line=$(trim_whitespace "$line")
@@ -66,7 +69,16 @@ load_env_file() {
 
         value=$(strip_matching_quotes "$value")
         export "$key=$value"
+        file_vars+=("$key=$value")
     done < "$env_file"
+
+    if [ ${#file_vars[@]} -gt 0 ]; then
+        echo "[agent-environment] $(basename "$env_file"):"
+        for entry in "${file_vars[@]}"; do
+            echo "  $entry"
+        done
+        APPLIED_VARS+=("${file_vars[@]}")
+    fi
 }
 
 if [ -d "$AGENT_ENV_DIR" ]; then
@@ -74,4 +86,10 @@ if [ -d "$AGENT_ENV_DIR" ]; then
         [ -f "$env_file" ] || continue
         load_env_file "$env_file"
     done
+fi
+
+if [ ${#APPLIED_VARS[@]} -gt 0 ]; then
+    echo "[agent-environment] ${#APPLIED_VARS[@]} variable(s) applied."
+else
+    echo "[agent-environment] No environment variables applied."
 fi
