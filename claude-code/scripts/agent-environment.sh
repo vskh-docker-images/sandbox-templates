@@ -2,8 +2,10 @@
 # /etc/agent-environment.sh
 # Loads KEY=VALUE pairs from *.env files in /etc/agent-environment.d/.
 # This avoids executing arbitrary shell code from mounted configuration.
-
-set -euo pipefail
+#
+# NOTE: This file is sourced (not executed), so we must not set shell options
+# like set -euo pipefail — they propagate to the calling shell and can cause
+# the entrypoint to abort before exec.
 
 AGENT_ENV_DIR="/etc/agent-environment.d"
 
@@ -72,13 +74,13 @@ load_env_file() {
         file_vars+=("$key=$value")
     done < "$env_file"
 
-    if [ ${#file_vars[@]} -gt 0 ]; then
-        echo "[agent-environment] $(basename "$env_file"):"
-        for entry in "${file_vars[@]}"; do
-            echo "  $entry"
-        done
-        APPLIED_VARS+=("${file_vars[@]}")
-    fi
+    # if [ ${#file_vars[@]} -gt 0 ]; then
+    #     # echo "[agent-environment] $(basename "$env_file"):"
+    #     # for entry in "${file_vars[@]}"; do
+    #     #     echo "  $entry"
+    #     # done
+    #     APPLIED_VARS+=("${file_vars[@]}")
+    # fi
 }
 
 if [ -d "$AGENT_ENV_DIR" ]; then
@@ -88,8 +90,8 @@ if [ -d "$AGENT_ENV_DIR" ]; then
     done
 fi
 
-if [ ${#APPLIED_VARS[@]} -gt 0 ]; then
-    echo "[agent-environment] ${#APPLIED_VARS[@]} variable(s) applied."
-else
-    echo "[agent-environment] No environment variables applied."
-fi
+# if [ "${#APPLIED_VARS[@]}" -gt 0 ]; then
+#     echo "[agent-environment] ${#APPLIED_VARS[@]} variable(s) applied."
+# else
+#     echo "[agent-environment] No environment variables applied."
+# fi
