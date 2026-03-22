@@ -2,9 +2,12 @@ FROM docker/sandbox-templates:claude-code-docker
 
 USER root
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt update && apt install -y --no-install-recommends \
         links \
+        vim \
     && rm -rf /var/lib/apt/lists/*
+
+ENV EDITOR=vim
 
 # Environment injection: loader script and env file directory
 COPY scripts/agent-environment.sh /etc/agent-environment.sh
@@ -19,6 +22,8 @@ RUN grep -qF '. /etc/agent-environment.sh' /etc/sandbox-persistent.sh 2>/dev/nul
     || echo '. /etc/agent-environment.sh' >> /etc/sandbox-persistent.sh
 RUN grep -qF 'PATH="/home/agent/bin:' /etc/sandbox-persistent.sh 2>/dev/null \
     || echo 'PATH="/home/agent/bin:$PATH"' >> /etc/sandbox-persistent.sh
+RUN grep -qF 'EDITOR=' /etc/sandbox-persistent.sh 2>/dev/null \
+    || echo 'EDITOR=vim' >> /etc/sandbox-persistent.sh
 
 USER agent
 
