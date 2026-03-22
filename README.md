@@ -25,7 +25,7 @@ These templates implement a **file-based environment injection mechanism** using
 ### How It Works
 
 1. A shell script `/etc/agent-environment.sh` is installed in the image. It loads all `*.env` files from `/etc/agent-environment.d/` in sorted order.
-2. A **`claude` wrapper** replaces the original Claude Code binary symlink. It sources the environment loader before delegating to the real binary — ensuring the main agent process receives injected variables even when the sandbox bypasses Docker `ENTRYPOINT`.
+2. A **`claude` wrapper** is installed to `~/bin/claude`, and `~/bin` is prepended to the agent's `PATH` so it shadows the real binary at `~/.local/bin/claude`. The real binary is left untouched, allowing Claude's self-update mechanism to work correctly. The wrapper sources the environment loader before delegating to the real binary — ensuring the main agent process receives injected variables even when the sandbox bypasses Docker `ENTRYPOINT`.
 3. The environment loader is also appended to **`/etc/sandbox-persistent.sh`** (referenced by `CLAUDE_ENV_FILE`), so every Bash tool invocation within Claude Code inherits the same variables.
 4. At runtime, mount a host directory containing your environment files to `/etc/agent-environment.d/` in read-only mode.
 
