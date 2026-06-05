@@ -1,0 +1,33 @@
+schemaVersion: "1"
+kind: agent
+name: hermes
+agent:
+  image: ghcr.io/vskh-docker-images/sandbox-templates:hermes
+persistence: persistent
+entrypoint:
+  run:
+    - hermes-launch
+    - --yolo
+network:
+  allowedDomains:
+    - hermes-agent.nousresearch.com:443
+    - '*.nousresearch.com:443'
+    - github.com:443
+    - raw.githubusercontent.com:443
+    - codeload.github.com:443
+    - objects.githubusercontent.com:443
+    - agentskills.io:443
+    - pypi.org:443
+    - files.pythonhosted.org:443
+    - registry.npmjs.org:443
+    - astral.sh:443
+    - openrouter.ai:443
+    - api.anthropic.com:443
+    - api.openai.com:443
+    - generativelanguage.googleapis.com:443
+    - api.x.ai:443
+    - api.deepseek.com:443
+    - router.huggingface.co:443
+    - api.firecrawl.dev:443
+    - api.tavily.com:443
+    - api.exa.ai:443

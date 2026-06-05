@@ -99,6 +99,15 @@ jobs:
           echo "sha_short=$SHA_SHORT" >> "$GITHUB_OUTPUT"
           echo "template=$TEMPLATE" >> "$GITHUB_OUTPUT"
 
+      - name: Check for kit folder
+        id: kit-check
+        run: |
+          if [ -f "${{ matrix.template }}/kit/Dockerfile" ]; then
+            echo "has_kit=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_kit=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build and push
         id: build-and-push
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
@@ -115,6 +124,23 @@ jobs:
           sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
+      - name: Build and push kit
+        id: build-and-push-kit
+        if: ${{ steps.kit-check.outputs.has_kit == 'true' }}
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: ${{ matrix.template }}/kit
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ env.GHCR_IMAGE }}:${{ steps.meta.outputs.template }}-kit
+            ${{ env.GHCR_IMAGE }}:${{ steps.meta.outputs.template }}-kit-${{ steps.meta.outputs.sha_short }}
+            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.meta.outputs.template }}-kit
+            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.meta.outputs.template }}-kit-${{ steps.meta.outputs.sha_short }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
       # Sign both registry images using keyless signing (Sigstore/Fulcio).
       # The signature is stored in the registry alongside the image and can be
       # verified with: cosign verify --certificate-identity-regexp="..." \
@@ -124,6 +150,16 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        run: |
+          cosign sign --yes \
+            "${{ env.GHCR_IMAGE }}@${DIGEST}"
+          cosign sign --yes \
+            "${{ env.DOCKERHUB_IMAGE }}@${DIGEST}"
+
+      - name: Sign kit images with cosign
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.kit-check.outputs.has_kit == 'true' && steps.build-and-push-kit.outcome == 'success'
+        env:
+          DIGEST: ${{ steps.build-and-push-kit.outputs.digest }}
         run: |
           cosign sign --yes \
             "${{ env.GHCR_IMAGE }}@${DIGEST}"
