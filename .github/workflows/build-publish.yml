@@ -162,6 +162,6 @@ jobs:
           DIGEST: ${{ steps.build-and-push-kit.outputs.digest }}
         run: |
           cosign sign --yes \
-            "${{ env.GHCR_IMAGE }}:${{ steps.meta.outputs.template }}-kit@${DIGEST}"
+            "${{ env.GHCR_IMAGE }}@${DIGEST}"
           cosign sign --yes \
-            "${{ env.DOCKERHUB_IMAGE }}:${{ steps.meta.outputs.template }}-kit@${DIGEST}"
+            "${{ env.DOCKERHUB_IMAGE }}@${DIGEST}"

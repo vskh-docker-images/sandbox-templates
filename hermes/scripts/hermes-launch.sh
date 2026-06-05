@@ -19,7 +19,8 @@ if [ ! -f "$SENTINEL" ]; then
 
     if [ "$TTY_AVAILABLE" -eq 1 ]; then
         until hermes setup; do
-            echo "Hermes setup did not complete; retrying..." >&2
+            echo "Hermes setup did not complete; retrying in 1s..." >&2
+            sleep 1
         done
         touch "$SENTINEL"
     fi
