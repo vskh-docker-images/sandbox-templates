@@ -118,6 +118,20 @@ OPENROUTER_API_KEY=your-key
 HERMES_YOLO_MODE=1
 ```
 
+Useful Hermes variables to provide or override when you launch the template or kit:
+
+| Variable | Why it matters | Typical value / notes |
+| --- | --- | --- |
+| `OPENROUTER_API_KEY` | Recommended provider key for the main model path. | Set this first if you want OpenRouter-backed inference. |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GOOGLE_API_KEY` / `GEMINI_API_KEY` / `XAI_API_KEY` / `DEEPSEEK_API_KEY` | Alternate provider credentials for other LLM backends. | Use whichever provider you selected in `hermes setup`. |
+| `HF_TOKEN` | Useful for Hugging Face inference/provider flows. | Optional, but required for some provider paths. |
+| `HERMES_YOLO_MODE` | Bypasses dangerous-command approval prompts. | Set to `1` for the `--yolo` behavior used by this sandbox launch path. |
+| `HERMES_HOME` | Overrides Hermes' runtime config directory. | Default is `~/.hermes`; set this when you want a sandbox-specific home. |
+| `FIRECRAWL_API_KEY` / `TAVILY_API_KEY` / `EXA_API_KEY` / `PARALLEL_API_KEY` / `SEARXNG_URL` | Enables web search and browsing helpers. | Add the ones you actually plan to use. |
+| `HERMES_DOCKER_BINARY` / `TERMINAL_*` | Optional terminal-backend tuning for containerized or remote runs. | Useful when the default Docker/terminal discovery is not enough. |
+
+These values are usually placed in `~/.hermes/.env` or managed with `hermes config set VAR value`. For the full official Hermes environment-variable reference, see https://hermes-agent.nousresearch.com/docs/reference/environment-variables/.
+
 The kit embeds a runtime allow-list, while the template-only path should use `sbx policy allow network -g "..."` as needed.
 
 ## Adding New Templates
