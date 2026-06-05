@@ -33,7 +33,7 @@ ENV HERMES_HOME=/home/agent/.hermes
 
 RUN mkdir -p /home/agent/bin
 
-RUN curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh \
+RUN curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/v2026.5.29.2/scripts/install.sh \
     | bash -s -- --skip-setup
 
 COPY --chown=agent:agent scripts/hermes-wrapper.sh /home/agent/bin/hermes
