@@ -11,6 +11,10 @@ full mechanism and usage; this file covers what an agent needs to work safely he
   discovers templates by that layout.
 - The reference template is [claude-code/](claude-code/). Its shared injection
   scripts live in [claude-code/scripts/](claude-code/scripts/).
+- The [hermes/](hermes/) template also ships a kit at [hermes/kit/spec.yaml](hermes/kit/spec.yaml)
+  with the first-run launch flow and browser-enabled runtime policy.
+- If a template ships a kit, publish its companion OCI image as `<template>-kit` and
+  `<template>-kit-<sha>` to both GHCR and DockerHub so it can be loaded via `sbx run --kit ...`.
 
 ## Environment injection (do not break)
 
@@ -36,6 +40,13 @@ its scripts:
 - The loader deliberately rejects `export`, command substitution, and backticks in
   mounted files — preserve that validation when touching
   [claude-code/scripts/agent-environment.sh](claude-code/scripts/agent-environment.sh).
+- Kit publishing convention: when a template has a `kit/` directory, also add a
+  `kit/Dockerfile` so CI can publish a companion OCI image using the same base tag
+  pattern as the template, with a `-kit` suffix (`<template>-kit`, `<template>-kit-<sha>`).
+  The published `-kit` image is just an OCI image built by the existing Docker
+  build/push path; no separate `sbx kit push` step is required for this repo.
+- Prefer `sbx run --kit ghcr.io/...:<template>-kit ...` or `sbx run --kit vskhimages/...:<template>-kit ...`
+  over local path references in repo docs and examples.
 
 ## Adding a template
 
@@ -59,4 +70,29 @@ Validate:
 
 ```sh
 docker build -t sandbox-templates:claude-code claude-code
+```
+
+### hermes template
+
+The Hermes template follows the same pattern, but uses the `shell-docker` base and
+adds the first-run launch flow for Hermes:
+
+- Base image: `docker/sandbox-templates:shell-docker`.
+- Launcher [hermes/scripts/hermes-launch.sh](hermes/scripts/hermes-launch.sh)
+  → `/usr/local/bin/hermes-launch`; it runs `hermes setup` until completion on first
+  launch, then starts Hermes with the baked `--yolo` path.
+- Wrapper [hermes/scripts/hermes-wrapper.sh](hermes/scripts/hermes-wrapper.sh)
+  → `~/bin/hermes`; the real `~/.local/bin/hermes` shim stays untouched so `hermes update`
+  continues to work.
+- Persistent shell init is `/etc/sandbox-persistent.sh`; the loader and `PATH`
+  override are appended there so shell sessions inherit the injected env.
+- The Hermes kit lives in [hermes/kit/spec.yaml](hermes/kit/spec.yaml) and is packaged by
+  [hermes/kit/Dockerfile](hermes/kit/Dockerfile) as an OCI image.
+- Published Hermes kit tags are `ghcr.io/vskh-docker-images/sandbox-templates:hermes-kit`
+  and `vskhimages/sandbox-templates:hermes-kit`, with `-<sha>` variants for pinned builds.
+
+Validate:
+
+```sh
+docker build -t sandbox-templates:hermes hermes
 ```

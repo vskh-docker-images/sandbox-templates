@@ -95,6 +95,30 @@ docker sandbox run \
 | Template | Base Image | Description |
 |---|---|---|
 | `claude-code` | `docker/sandbox-templates:claude-code-docker` | Claude Code agent with environment injection |
+| `hermes` | `docker/sandbox-templates:shell-docker` | Hermes agent with env injection, browser tools, and first-run setup |
+
+### Hermes Template
+
+The `hermes/` directory ships both a Docker template and a published `sbx` kit image:
+
+```bash
+# Template path (Docker sandbox run)
+docker sandbox run -t ghcr.io/vskh-docker-images/sandbox-templates:hermes \
+  hermes ~/my-project /etc/agent-environment.d:ro
+
+# Published kit path (sbx)
+sbx run --kit ghcr.io/vskh-docker-images/sandbox-templates:hermes-kit \
+  hermes ~/my-project /etc/agent-environment.d:ro
+```
+
+For provider keys and other injected values, add a mounted env file such as:
+
+```bash
+OPENROUTER_API_KEY=your-key
+HERMES_YOLO_MODE=1
+```
+
+The kit embeds a runtime allow-list, while the template-only path should use `sbx policy allow network -g "..."` as needed.
 
 ## Adding New Templates
 
@@ -113,3 +137,12 @@ Each template produces:
 
 - `<registry>/sandbox-templates:<template>` — latest from main
 - `<registry>/sandbox-templates:<template>-<sha>` — pinned to specific commit
+
+If a template also ships a kit image, CI publishes the companion tags:
+
+- `<registry>/sandbox-templates:<template>-kit` — latest kit image from main
+- `<registry>/sandbox-templates:<template>-kit-<sha>` — pinned kit image for the commit
+
+Use the `-kit` image with `sbx run --kit <registry>/sandbox-templates:<template>-kit ...` when you want the published OCI kit rather than a local directory.
+
+The companion `-kit` image is published from `kit/Dockerfile` with the normal OCI image build/push flow already used by CI.
