@@ -143,7 +143,7 @@ The kit embeds a runtime allow-list, while the template-only path should use `sb
 
 ## CI/CD
 
-GitHub Actions automatically builds images on pull requests (validation only) and pushes to both GHCR and DockerHub on merge to `main`.
+GitHub Actions automatically builds multi-arch images for `linux/amd64` and `linux/arm64` on pull requests (validation only) and pushes the same manifest list to both GHCR and DockerHub on merge to `main`.
 
 ### Image Tags
 
