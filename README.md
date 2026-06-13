@@ -145,6 +145,8 @@ The kit embeds a runtime allow-list, while the template-only path should use `sb
 
 GitHub Actions automatically builds multi-arch images for `linux/amd64` and `linux/arm64` on pull requests (validation only) and pushes the same manifest list to both GHCR and DockerHub on merge to `main`.
 
+You can also run the workflow manually with **Run workflow** and set `force_all_templates=true` to bypass change detection and run the build matrix even when no template changes were detected.
+
 ### Image Tags
 
 Each template produces:
